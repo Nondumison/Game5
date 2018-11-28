@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="phaser.js">
+
+    </script>
+    <style media="screen">
+      body{
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      var config = {
+    type: Phaser.WEBGL,
+    // parent: 'phaser-example',
+    width: 800,
+    height: 600,
+    backgroundColor: '#72dea3',
+    pixelArt: true,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: true
+        }
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    },
+    audio:{
+      disableWebAudio: true
+    }
+};
+
+var background;
+var cursors;
+var camera;
+var car;
+var car2;
+var finish;
+var coin;
+var invisible;
+var music;
+var road;
+var text;
+var timedEvent;
+var sky;
+var truck;
+var trees;
+var horizon;
+var speed = 10;
+var startZ;
+var score =0;
+var scoreText;
+var gameText;
+var gameOver=false;
+
+
+var game = new Phaser.Game(config);
+
+function preload ()
+
+
+{
+
+    this.load.audio('theme','assets/sister.mp3');
+
+  	this.load.image('sky', 'assets/sky.png');
+   	this.load.image('hills', 'assets/hills.png');
+   	this.load.image('trees', 'assets/trees.png');
+
+    this.load.scenePlugin('Camera3DPlugin', 'plugins/camera3d.min.js', 'Camera3DPlugin', 'cameras3d');
+
+    this.load.image('bg', 'assets/sky.png');
+
+    this.load.image('horizon', 'assets/desert2.jpg');
+    this.load.image('tree', 'assets/1234.png');
+
+      this.load.image('car', 'assets/car04.png');
+      this.load.image('car1', 'assets/car01.png');
+      this.load.image('car2', 'assets/car02.png');
+      this.load.image('truck', 'assets/truck.png');
+
+      this.load.image('invisible', 'assets/invisible4.png');
+      this.load.image('treeLeft', 'assets/tree1.png');
+    this.load.image('treeRight', 'assets/tree1.png');
+    this.load.image('coin', 'assets/1234.png');
+     this.load.image('deadtree', 'assets/billboard01.png');
+     this.load.image('deadtree2', 'assets/billboard03.png');
+     // this.load.image('finish', 'assets/intro.png');
+}
+
+function create ()
+{
+    sky = this.add.image(400, 250, 'bg').setDepth(-5000);
+    horizon = this.add.image(400, 300, 'horizon').setDepth(-4000);
+   // finish = this.add.image(400, 300, 'finish').setDepth(-4000);
+    car = this .add.image(400, 550, 'car').setDepth(-2000);
+
+    truck = this .add.image(400, 650, 'truck').setDepth(-2000);
+    //camera = this.cameras3d.add(20, 800, 600).setPosition(1500, -70, 10000);
+    camera = this.cameras3d.add(100).setPosition(0, -40, 300).setPixelScale(200);
+
+    for (var z = 0; z < 32; z++)
+    {
+        for (var x = 1; x < 16; x++)
+        {
+            var xDiff = Phaser.Math.Between(-40, 40);
+            var zDiff = Phaser.Math.Between(-60, 60);
+
+            var bx = (x * 100) + xDiff;
+            var bz = (z * 300) + zDiff;
+
+            camera.create(bx, 0, bz, 'tree');
+        }
+    }
+    for (var z = 0; z < 32; z++)
+    {
+        for (var x = 1; x < 0; x++)
+        {
+            var xDiff = Phaser.Math.Between(-40, 40);
+            var zDiff = Phaser.Math.Between(-60, 60);
+
+            var bx = (x * 100) + xDiff;
+            var bz = (z * 600) + zDiff;
+
+            camera.create(bx, 0, bz, 'truck');
+        }
+    }
+
+    for (var z = 0; z < 32; z++)
+    {
+        for (var x = 1; x < 0; x++)
+        {
+            var xDiff = Phaser.Math.Between(-40, 40);
+            var zDiff = Phaser.Math.Between(-60, 60);
+
+            var bx = (x * 100) + xDiff;
+            var bz = (z * 600) + zDiff;
+
+            camera.create(bx, 0, bz, 'car2');
+        }
+    }
+for (var z = 0; z < 32; z++)
+    {
+        for (var x = 1; x < 0; x++)
+        {
+            var xDiff = Phaser.Math.Between(-40, 40);
+            var zDiff = Phaser.Math.Between(-60, 60);
+
+            var bx = (x * 100) + xDiff;
+            var bz = (z * 600) + zDiff;
+
+            camera.create(bx, 0, bz, 'deadtree2');
+        }
+    }
+
+    for (var z = 0; z < 32; z++)
+    {
+        for (var x = 1; x < 0; x++)
+        {
+            var xDiff = Phaser.Math.Between(-40, 40);
+            var zDiff = Phaser.Math.Between(-60, 60);
+
+            var bx = (x * 100) + xDiff;
+            var bz = (z * 600) + zDiff;
+
+            camera.create(bx, 0, bz, 'deadtree1');
+        }
+    }
+
+
+
+
+    // road = camera.createRect({ x: 1, y: 1, z: 32 }, 24, 'horizon', 0);
+    //
+    //     for (var i = 0; i < road.length; i++)
+    //     {
+    //         var segment = road[i];
+    //
+    //         if (i % 2 === 1)
+    //         {
+    //             segment.gameObject.setFrame(1);
+    //         }
+    //     }
+    background = camera.createRect({ x: 1, y: 1, z: 32 }, 24, 'invisible', 0);
+
+        startZ = background[0].z;
+
+        for (var i = 0; i < background.length; i++)
+        {
+            var segment = background[i];
+
+            segment.gameObject.scaleX = 1;
+            segment.adjustScaleX = false;
+
+            if (i % 2 === 1)
+            {
+                segment.gameObject.setFrame(1);
+            }
+        }
+
+        road = camera.createRect({ x: 1, y: 1, z: 32 }, 24, 'invisible', 0);
+
+        for (var i = 0; i < road.length; i++)
+        {
+            var segment = road[i];
+
+            if (i % 2 === 1)
+            {
+                segment.gameObject.setFrame(1);
+            }
+        }
+        trees = [];
+
+        for (var i = 0; i < 18; i++)
+        {
+            trees.push(camera.create(-300, -60, i * 128, 'treeLeft'));
+            trees.push(camera.create(300, -60, i * 128, 'treeRight'));
+        }
+
+
+        for (var i = 0; i < 1; i++)
+        {
+            // trees.push(camera.create(-300, -60, i * 128, 'treeLeft'));
+            trees.push(camera.create(75, 60, i * 10, 'truck'));
+        }
+
+        for (var i = 0; i < 1; i++)
+        {
+            // trees.push(camera.create(-300, -60, i * 128, 'treeLeft'));
+            trees.push(camera.create(-75, 60, i * 128, 'car2'));
+        }
+         for (var i = 0; i < 1; i++)
+        {
+            trees.push(camera.create(-500, 60, i * 128, 'deadtree2'));
+            trees.push(camera.create(500, -60, i * 128, 'deadtree'));
+        }
+
+        this.physics.add.collider(car,truck);
+
+        coin = this.physics.add.group({
+                key: 'coin',
+                repeat: 11,
+                setY: { x: 12, y: 600, stepX: 70 }
+            });
+
+            coin.children.iterate(function (child) {
+                child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+
+            });
+
+
+timedEvent = this.time.addEvent({ delay: 2000, callback: onEvent, callbackScope: this, repeat: 4 });
+    //     cursors = this.input.keyboard.createCursorKeys();
+    //
+    //
+    // cursors = this.input.keyboard.createCursorKeys();
+
+    cursors = this.input.keyboard.createCursorKeys();
+
+    text = this.add.text(10, 10, '', { font: '30px Courier', fill: '#fff' });
+
+
+          this.physics.add.overlap(car, truck, hittruck, null, this);
+
+          gameText = this.add.text(16, 16, '', { fontSize: '45px', fill: '#000' });
+          scoreText = this.add.text(16, 16, '', { fontSize: '32px', fill: "#000"});
+
+
+          this.physics.add.overlap(car, car2, hitcar, null, this);
+
+          gameText = this.add.text(16, 16, '', { fontSize: '45px', fill: '#000' });
+          scoreText = this.add.text(16, 16, '', { fontSize: '32px', fill: "#000"});
+
+      music = this.sound.add('theme');
+
+        music.play();
+}
+
+
+
+function update ()
+{
+
+ text.setText('Event.progress: ' + timedEvent.getProgress().toString().substr(0, 4) + '\nEvent.repeatCount: ' + timedEvent.repeatCount);
+  // truck.setVelocity(20);
+    // if (cursors.left.isDown)
+    // {
+    //     camera.x -= 4;
+    // }
+    // else if (cursors.right.isDown)
+    // {
+    //     camera.x += 4;
+    // }
+    //
+    // if (cursors.up.isDown)
+    // {
+    //     if (cursors.shift.isDown)
+    //     {
+    //         camera.y = Phaser.Math.Clamp(camera.y - 4, -200, 30);
+    //     }
+    //     else
+    //     {
+    //         camera.z -= 16;
+    //     }
+    // }
+    // else if (cursors.down.isDown)
+    // {
+    //     if (cursors.shift.isDown)
+    //     {
+    //         camera.y = Phaser.Math.Clamp(camera.y + 4, -200, 30);
+    //     }
+    //     else
+    //     {
+    //         camera.z += 16;
+    //     }
+    // }
+    //the road1
+
+    // for (var i = 0; i < road.length; i++)
+    // {
+    //     var segment = road[i];
+    //
+    //     segment.z += speed;
+    //
+    //     if (segment.z > (camera.z + 32))
+    //     {
+    //         segment.z = startZ;
+    //     }
+    //
+    //     if (cursors.left.isDown)
+    //     {
+    //         segment.x -= 1;
+    //     }
+    //     else if (cursors.right.isDown)
+    //     {
+    //         segment.x += 1;
+    //     }
+    // }
+
+    for (var i = 0; i < trees.length; i++)
+       {
+           var segment = trees[i];
+
+           segment.z += speed;
+
+           if (segment.z > (camera.z + 32))
+           {
+               segment.z = startZ;
+           }
+       }
+
+
+       var obj = camera;
+
+       // if (cursors.up.isDown)
+       // {
+       //     // if (cursors.shift.isDown)
+       //     // {
+       //         obj.y -= 4;
+       //     // }
+       //     // else
+       //     // {
+       //     //     obj.z -= 4;
+       //     // }
+       // }
+       // else if (cursors.down.isDown)
+       // {
+       //     // if (cursors.shift.isDown)
+       //     // {
+       //         obj.y += 4;
+       //     // }
+       //     // else
+       //     // {
+       //     //     obj.z += 4;
+       //     // }
+       // }
+        if (cursors.left.isDown)
+    {
+        car.x -= 8;
+    }
+    else if (cursors.right.isDown)
+    {
+        car.x += 8;
+    }
+
+    if (cursors.up.isDown)
+    {
+        if (cursors.shift.isDown)
+        {
+            car.y = Phaser.Math.Clamp(car.y - 4, -200, 30);
+        }
+        else
+        {
+            car.z -= 16;
+        }
+    }
+    else if (cursors.down.isDown)
+    {
+        if (cursors.shift.isDown)
+        {
+            car.y = Phaser.Math.Clamp(car.y + 4, -200, 30);
+        }
+        else
+        {
+            car.z += 16;
+        }
+
+    }
+
+       camera.update();
+      // music.play();
+
+    text.setText(
+        // 'camera.x: ' + camera.x,
+        // 'camera.y: ' + camera.y,
+        // 'camera.z: ' + camera.z
+        'TIME:'+ timedEvent.repeatCount
+    );
+
+
+
+
+    if (gameOver)
+    {
+      gameText.setText("Game Over!\n Rerun to play again.");
+      this.music.pause();
+      // scoreText.setText('Score: ' + score);
+
+    return;
+
+    }
+}
+function onEvent ()
+{
+    // image.scaleX *= 0.90;
+    // image.scaleY *= 0.90;
+    // image.rotation += 0.04 + 0.02;
+}
+
+function hittruck (car, truck)
+{
+  car.setTint(0xff0000);
+  this.physics.pause();
+
+  // this.music.pause();
+
+
+
+  gameOver = true;
+}
+
+function hitcar (car, car2)
+{
+  this.physics.pause();
+
+  // this.music.pause();
+
+  car.setTint(0xff0000);
+
+  gameOver = true;
+}
+
+    </script>
+  </body>
+</html>
